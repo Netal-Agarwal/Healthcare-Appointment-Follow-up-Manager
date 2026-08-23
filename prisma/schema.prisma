@@ -1,8 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// =============================================================================
+// Healthcare Appointment Follow-up Manager — Prisma Schema
+// Database: PostgreSQL
+// =============================================================================
 
 generator client {
   provider = "prisma-client-js"
@@ -10,7 +9,310 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// Database models will be added here in subsequent development steps.
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum SlotStatus {
+  AVAILABLE
+  HELD
+  BOOKED
+  CANCELLED
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  REMINDER
+  CANCELLATION
+  LEAVE_CONFLICT
+  MEDICATION_REMINDER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  RETRYING
+}
+
+// =============================================================================
+// USER
+// =============================================================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String
+  role         Role     @default(PATIENT)
+  phone        String?
+
+  // Google OAuth fields
+  googleId           String?   @unique
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  doctorProfile  DoctorProfile?
+  appointments   Appointment[]  @relation("PatientAppointments")
+  notifications  Notification[]
+}
+
+// =============================================================================
+// DOCTOR PROFILE
+// =============================================================================
+
+model DoctorProfile {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  specialisation      String
+  slotDurationMinutes Int     @default(30)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workingHours WorkingHour[]
+  leaveDays    LeaveDay[]
+  slots        Slot[]
+  appointments Appointment[]  @relation("DoctorAppointments")
+}
+
+// =============================================================================
+// WORKING HOURS
+// =============================================================================
+
+model WorkingHour {
+  id              String @id @default(cuid())
+  doctorProfileId String
+
+  /// 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  dayOfWeek Int
+
+  /// "HH:MM" format, e.g. "09:00"
+  startTime String
+
+  /// "HH:MM" format, e.g. "17:00"
+  endTime String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  doctorProfile DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorProfileId, dayOfWeek])
+}
+
+// =============================================================================
+// LEAVE DAY
+// =============================================================================
+
+model LeaveDay {
+  id              String   @id @default(cuid())
+  doctorProfileId String
+  date            DateTime @db.Date
+  reason          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  doctorProfile DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorProfileId, date])
+}
+
+// =============================================================================
+// SLOT
+// CRITICAL: @@unique([doctorProfileId, startTime]) is the database-level
+// guard against double-booking. No two slots for the same doctor can share
+// an identical startTime, making it impossible to book the same time twice
+// even under concurrent requests.
+// =============================================================================
+
+model Slot {
+  id              String     @id @default(cuid())
+  doctorProfileId String
+  startTime       DateTime
+  endTime         DateTime
+  status          SlotStatus @default(AVAILABLE)
+
+  /// Timestamp until which this slot is held (used for short-term reservation locks)
+  heldUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  doctorProfile DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
+  appointment   Appointment?
+
+  /// DATABASE-LEVEL DOUBLE-BOOKING PREVENTION
+  @@unique([doctorProfileId, startTime])
+}
+
+// =============================================================================
+// APPOINTMENT
+// =============================================================================
+
+model Appointment {
+  id              String            @id @default(cuid())
+  slotId          String            @unique
+  patientId       String
+  doctorProfileId String
+  status          AppointmentStatus @default(PENDING)
+
+  /// Google Calendar event ID for the patient's calendar
+  googleEventIdPatient String?
+
+  /// Google Calendar event ID for the doctor's calendar
+  googleEventIdDoctor String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  slot          Slot          @relation(fields: [slotId], references: [id], onDelete: Restrict)
+  patient       User          @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Restrict)
+  doctorProfile DoctorProfile @relation("DoctorAppointments", fields: [doctorProfileId], references: [id], onDelete: Restrict)
+  symptomForm   SymptomForm?
+  visitNote     VisitNote?
+}
+
+// =============================================================================
+// SYMPTOM FORM
+// Filled by patient before the appointment; processed by Groq LLM.
+// =============================================================================
+
+model SymptomForm {
+  id            String  @id @default(cuid())
+  appointmentId String  @unique
+
+  /// Raw free-text symptoms submitted by the patient
+  rawSymptoms String
+
+  /// LLM-assessed urgency level
+  urgency Urgency?
+
+  /// LLM-extracted chief complaint in concise form
+  chiefComplaint String?
+
+  /// LLM-generated clarifying questions for the doctor
+  suggestedQuestions Json?
+
+  /// Short list of reasons the urgency was flagged — for explainability
+  urgencySignals Json?
+
+  /// LLM-generated note comparing new symptoms to the patient's last completed
+  /// appointment with this doctor (what's new, what has resolved)
+  changesSinceLastVisit String?
+
+  /// Non-null if the LLM call failed; contains the error message
+  llmError String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================================
+// VISIT NOTE
+// Filled by the doctor after the appointment; post-processed by Groq LLM.
+// =============================================================================
+
+model VisitNote {
+  id            String @id @default(cuid())
+  appointmentId String @unique
+
+  /// Doctor's clinical notes (raw)
+  clinicalNotes String
+
+  /// Structured prescription data
+  prescription Json
+
+  /// LLM-generated plain-language summary for the patient
+  patientSummary String?
+
+  /// Non-null if the LLM call failed; contains the error message
+  llmError String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  appointment        Appointment         @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  medicationReminders MedicationReminder[]
+}
+
+// =============================================================================
+// MEDICATION REMINDER
+// =============================================================================
+
+model MedicationReminder {
+  id          String   @id @default(cuid())
+  visitNoteId String
+  medication  String
+  scheduledAt DateTime
+  sent        Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  visitNote VisitNote @relation(fields: [visitNoteId], references: [id], onDelete: Cascade)
+}
+
+// =============================================================================
+// NOTIFICATION
+// =============================================================================
+
+model Notification {
+  id     String             @id @default(cuid())
+  userId String
+  type   NotificationType
+  status NotificationStatus @default(PENDING)
+
+  /// Arbitrary JSON payload (email body, SMS text, push data, etc.)
+  payload Json
+
+  /// Number of delivery attempts made
+  attempts Int @default(0)
+
+  /// Last error message if delivery failed
+  lastError String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
