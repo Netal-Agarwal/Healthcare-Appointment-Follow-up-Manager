@@ -76,7 +76,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     if (notifications.length) await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
 
-    return NextResponse.json({ appointment: confirmed, preVisit: llmResult });
+    // Do not expose raw LLM error messages to clients — map errors to a generic message.
+    const preVisitSafe = llmResult.ok
+      ? { ok: true, data: llmResult.data }
+      : { ok: false, error: "Pre-visit summary currently unavailable" };
+
+    return NextResponse.json({ appointment: confirmed, preVisit: preVisitSafe });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
