@@ -1,0 +1,24 @@
+name: Cron — HealthFollow scheduled jobs
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  run-crons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke cron endpoints
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          endpoints=("send-notifications" "release-holds" "medication-reminders")
+          for e in "${endpoints[@]}"; do
+            url="$APP_URL/api/cron/$e"
+            echo "Calling $url"
+            curl -fsS -X GET -H "Authorization: Bearer $CRON_SECRET" "$url" || { echo "Call failed: $e"; exit 1; }
+            sleep 1
+          done
