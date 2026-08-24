@@ -1,16 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/send-notifications",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/medication-reminders",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/release-holds",
-      "schedule": "*/5 * * * *"
-    }
-  ]
-}
+{}
