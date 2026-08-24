@@ -1,4 +1,5 @@
 import React from "react";
+import type { User, DoctorProfile } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import Card from "@/components/ui/Card";
@@ -19,7 +20,7 @@ export default async function AdminDoctorsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {doctors.map((d) => (
+        {doctors.map((d: User & { doctorProfile: (DoctorProfile & { workingHours: unknown[] }) | null }) => (
           <Card key={d.id}>
             <div className="flex items-center justify-between">
               <div>
