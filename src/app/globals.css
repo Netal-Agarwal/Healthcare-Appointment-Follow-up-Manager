@@ -1,23 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f8f9ff;
+  --foreground: #0b1c30;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+input, textarea, select { color-scheme: light; background-color: #ffffff; color: #0b1c30; }
+textarea { border: 1px solid #cbd5e1; border-radius: 0.5rem; }
+textarea:focus { outline: none; border-color: #006398; box-shadow: 0 0 0 2px rgba(0, 99, 152, .2); }
+
+h1, h2, h3, h4 { font-family: "Plus Jakarta Sans", Inter, Arial, sans-serif; letter-spacing: -0.02em; }
+* { border-color: #dce9ff; }
+
+@layer components {
+  .hf-page-title { @apply text-3xl font-semibold tracking-tight text-[#091426]; }
+  .hf-page-subtitle { @apply mt-2 text-sm leading-6 text-slate-600; }
+  .hf-section { @apply space-y-6; }
+  .hf-ai-card { box-shadow: 0 0 0 1px rgba(99,102,241,.2), 0 4px 20px -2px rgba(99,102,241,.10); }
 }
 
 @layer utilities {

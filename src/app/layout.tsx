@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
-import Sidebar from "@/components/layout/Sidebar";
 import ClientProviders from "@/components/ClientProviders";
 
 const geistSans = localFont({
@@ -17,27 +16,20 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Healthcare Appointment Follow-up Manager",
-  description: "Manage and automate healthcare appointment follow-ups",
+  title: "HealthFollow | Care lifecycle, connected",
+  description: "Appointments, AI-assisted visit preparation, and follow-up care.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ClientProviders>
-            <div className="min-h-screen">
-              <header className="border-b border-slate-200 dark:border-slate-800">
+            <div className="min-h-screen bg-[#f8f9ff]">
+              <header className="sticky top-0 z-50 border-b border-[#dce9ff] bg-[#f8f9ff]/95 backdrop-blur">
                 <Navbar />
               </header>
-              <main className="mx-auto max-w-7xl px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  <div className="hidden lg:block lg:col-span-3">
-                    <Sidebar />
-                  </div>
-                  <div className="col-span-1 lg:col-span-9">{children}</div>
-                </div>
-              </main>
+              <main className="mx-auto w-full max-w-[1280px] px-4 py-8 md:px-10 md:py-10">{children}</main>
             </div>
         </ClientProviders>
       </body>

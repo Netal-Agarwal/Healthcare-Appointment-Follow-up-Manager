@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { cancelAppointment } from "@/lib/booking";
 import { Role, Prisma } from "@prisma/client";
+import { deleteCalendarEventsForAppointment } from "@/lib/calendar";
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const session = await auth();
@@ -34,8 +35,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
     if (doctorProfile?.userId) notifications.push({ userId: doctorProfile.userId, type: "CANCELLATION", payload: (JSON.stringify({ appointmentId }) as unknown) as Prisma.InputJsonValue });
 
     if (notifications.length) await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
+    const calendar = await deleteCalendarEventsForAppointment(appointmentId);
 
-    return NextResponse.json({ cancelled });
+    return NextResponse.json({ cancelled, calendar });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

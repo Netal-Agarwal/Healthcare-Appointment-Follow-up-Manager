@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { confirmAppointment } from "@/lib/booking";
 import { Prisma } from "@prisma/client";
 import { generatePreVisitSummary } from "@/lib/llm";
+import { createCalendarEventsForAppointment } from "@/lib/calendar";
+import { queueNotification } from "@/lib/notifications";
 
 const bodySchema = z.object({ symptoms: z.string().min(1) });
 
@@ -70,18 +72,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     // Step 9: queue BOOKING_CONFIRMATION notifications for patient and doctor
     const doctorProfile = appointment.doctorProfileId ? await prisma.doctorProfile.findUnique({ where: { id: appointment.doctorProfileId }, select: { userId: true } }) : null;
-    const notifications: Prisma.NotificationCreateManyInput[] = [];
-    notifications.push({ userId: appointment.patientId, type: "BOOKING_CONFIRMATION", payload: (JSON.stringify({ appointmentId }) as unknown) as Prisma.InputJsonValue });
-    if (doctorProfile?.userId) notifications.push({ userId: doctorProfile.userId, type: "BOOKING_CONFIRMATION", payload: (JSON.stringify({ appointmentId }) as unknown) as Prisma.InputJsonValue });
-
-    if (notifications.length) await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
+    await queueNotification(appointment.patientId, "BOOKING_CONFIRMATION", { appointmentId });
+    if (doctorProfile?.userId) await queueNotification(doctorProfile.userId, "BOOKING_CONFIRMATION", { appointmentId });
+    // Calendar is deliberately best-effort: a missing OAuth connection must not invalidate care.
+    const calendar = await createCalendarEventsForAppointment(appointmentId);
 
     // Do not expose raw LLM error messages to clients — map errors to a generic message.
     const preVisitSafe = llmResult.ok
       ? { ok: true, data: llmResult.data }
       : { ok: false, error: "Pre-visit summary currently unavailable" };
 
-    return NextResponse.json({ appointment: confirmed, preVisit: preVisitSafe });
+    return NextResponse.json({ appointment: confirmed, preVisit: preVisitSafe, calendar });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

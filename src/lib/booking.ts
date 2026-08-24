@@ -49,6 +49,13 @@ export async function holdSlot(slotId: string, patientId: string) {
     // Only after successfully acquiring the slot create the appointment.
     // Respect the Appointment.slotId @unique constraint — creation will fail
     // if another appointment already exists for this slot.
+    // Retain stale/cancelled appointment history, but clear any pending hold
+    // before creating the new reservation for this database slot.
+    await tx.appointment.updateMany({
+      where: { slotId: slot.id, status: "PENDING" },
+      data: { status: "CANCELLED" },
+    });
+
     const appointment = await tx.appointment.create({
       data: {
         slotId: slot.id,
@@ -153,6 +160,16 @@ export async function cancelAppointment(appointmentId: string) {
 export async function releaseExpiredHolds(): Promise<number> {
   return db.prisma.$transaction(async (tx) => {
     const now = new Date();
+    const expired = await tx.slot.findMany({
+      where: { status: "HELD", heldUntil: { lt: now } },
+      select: { id: true },
+    });
+    if (expired.length) {
+      await tx.appointment.updateMany({
+        where: { slotId: { in: expired.map((slot) => slot.id) }, status: "PENDING" },
+        data: { status: "CANCELLED" },
+      });
+    }
     const result = await tx.slot.updateMany({
       where: { status: "HELD", heldUntil: { lt: now } },
       data: { status: "AVAILABLE", heldUntil: null },
@@ -160,4 +177,3 @@ export async function releaseExpiredHolds(): Promise<number> {
     return result.count;
   });
 }
-

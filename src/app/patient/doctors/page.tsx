@@ -32,17 +32,15 @@ export default function DoctorsPage() {
   }, [filter]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Find a doctor</h1>
+    <div className="hf-section">
+      <div>
+        <h1 className="hf-page-title">Find a doctor</h1>
+        <p className="hf-page-subtitle">Choose a specialist, check live availability, and begin a secure booking.</p>
       </div>
 
-      <div className="mb-4">
+      <div className="rounded-2xl border bg-[#eff4ff] p-4">
         <div className="flex gap-2 flex-wrap">
-          <button onClick={() => setFilter(null)} className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">All</button>
-          <button onClick={() => setFilter("cardiology")} className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">Cardiology</button>
-          <button onClick={() => setFilter("dermatology")} className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">Dermatology</button>
-          <button onClick={() => setFilter("general")} className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800">General</button>
+          {[[null,"All"],["cardiology","Cardiology"],["dermatology","Dermatology"],["general","General"]].map(([value,label]) => <button key={label} onClick={() => setFilter(value)} className={`rounded-full px-4 py-2 text-sm font-semibold ${filter === value ? "bg-[#006398] text-white" : "border border-slate-200 bg-white text-slate-700 hover:bg-[#e5eeff]"}`}>{label}</button>)}
         </div>
       </div>
 
@@ -82,11 +80,11 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
   }, [doctor.id]);
 
   return (
-    <Card>
+    <Card className="transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-lg font-medium">{doctor.user.name ?? "Dr. Staff"}</div>
-          <div className="text-sm text-slate-500">{doctor.specialisation ?? "General"}</div>
+          <div className="text-lg font-semibold text-[#091426]">{doctor.user.name ?? "Dr. Staff"}</div>
+          <div className="mt-1 text-sm text-slate-600">{doctor.specialisation ?? "General"} · {doctor.slotDurationMinutes ?? 30} min visits</div>
         </div>
         <div className="text-right">
           {slotsCount === null ? <div className="text-sm text-slate-400">Checking...</div> : <Badge variant={slotsCount > 5 ? "low" : slotsCount > 0 ? "medium" : "high"}>{slotsCount} available</Badge>}

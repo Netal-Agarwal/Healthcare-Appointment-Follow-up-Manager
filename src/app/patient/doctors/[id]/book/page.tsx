@@ -184,7 +184,7 @@ function SymptomStep({ appointment, timeLeft, expired }: { appointment: { id: st
         <form onSubmit={onSubmit} className="mt-4">
           <label className="block">
             <div className="text-sm font-medium">Symptoms</div>
-            <textarea className="w-full rounded-md border px-3 py-2 mt-2" rows={6} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Describe what you're experiencing, when it started, and how severe it feels." />
+            <textarea className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400" rows={6} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Describe what you're experiencing, when it started, and how severe it feels." />
           </label>
 
           <div className="mt-4 flex gap-2">

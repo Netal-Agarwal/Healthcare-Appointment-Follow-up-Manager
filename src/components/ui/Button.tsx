@@ -10,13 +10,13 @@ export type ButtonProps = React.ComponentProps<typeof motion.button> & {
 };
 
 const button = cva(
-  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50",
+  "inline-flex min-h-10 items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#006398] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-teal-700 text-white hover:bg-teal-600 focus:ring-teal-400",
-        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100",
-        ghost: "bg-transparent text-teal-700 hover:bg-slate-50 dark:text-teal-300",
+        primary: "bg-[#006398] text-white shadow-sm hover:bg-[#004b73]",
+        secondary: "border border-slate-200 bg-white text-slate-800 hover:bg-[#eff4ff]",
+        ghost: "bg-transparent text-[#006398] hover:bg-[#eff4ff]",
         destructive: "bg-red-600 text-white hover:bg-red-500",
       },
     },

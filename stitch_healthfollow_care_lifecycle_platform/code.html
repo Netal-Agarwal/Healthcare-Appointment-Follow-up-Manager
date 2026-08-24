@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HealthFollow - Professional Healthcare Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed": "#00201d",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary": "#006398",
+                      "primary": "#091426",
+                      "surface-variant": "#d3e4fe",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary-fixed": "#111c2d",
+                      "on-primary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-background": "#0b1c30",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#45474c",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed": "#001d31",
+                      "secondary-fixed-dim": "#93ccff",
+                      "on-secondary-fixed-variant": "#004b73",
+                      "outline-variant": "#c5c6cd",
+                      "background": "#f8f9ff",
+                      "on-tertiary-container": "#28a094",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed": "#d8e3fb",
+                      "inverse-primary": "#bcc7de",
+                      "on-primary-container": "#8590a6",
+                      "secondary-container": "#5bb8fe",
+                      "tertiary-container": "#002f2a",
+                      "primary-container": "#1e293b",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "primary-fixed-dim": "#bcc7de",
+                      "surface": "#f8f9ff",
+                      "surface-tint": "#545f73",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#eff4ff",
+                      "tertiary-fixed": "#89f5e7",
+                      "surface-container": "#e5eeff",
+                      "outline": "#75777d",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "surface-container-high": "#dce9ff",
+                      "surface-bright": "#f8f9ff",
+                      "inverse-surface": "#213145",
+                      "on-primary-fixed-variant": "#3c475a",
+                      "on-secondary-container": "#00476e",
+                      "secondary-fixed": "#cce5ff",
+                      "tertiary": "#001815"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "section-gap": "80px",
+                      "stack-lg": "32px",
+                      "stack-md": "16px",
+                      "container-max": "1280px",
+                      "unit": "8px",
+                      "margin-desktop": "40px",
+                      "stack-sm": "8px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["Plus Jakarta Sans"],
+                      "label-sm": ["Inter"],
+                      "headline-sm": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-sm": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-md": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .ai-border-glow {
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2), 0 4px 20px -2px rgba(99, 102, 241, 0.1);
+        }
+        .ai-text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(90deg, #6366f1, #a855f7);
+        }
+        .smooth-shadow {
+            box-shadow: 0 4px 24px -6px rgba(30, 41, 59, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopNavBar -->
+<nav class="bg-surface dark:bg-primary sticky top-0 w-full z-50 flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto shadow-sm border-b border-surface-container-high transition-transform duration-100">
+<div class="flex items-center gap-gutter">
+<a class="font-headline-md text-headline-md font-bold text-primary dark:text-on-primary flex items-center gap-2" href="#">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+                HealthFollow
+            </a>
+<div class="hidden md:flex gap-6 ml-8">
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Patients</a>
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Doctors</a>
+<a class="text-on-surface-variant dark:text-on-primary-container font-medium hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200 font-label-md text-label-md" href="#">Enterprise</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<a class="hidden md:block text-primary dark:text-on-primary font-label-md text-label-md hover:text-secondary transition-colors" href="#">Log In</a>
+<a class="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-label-md text-label-md hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm" href="#">Get Started</a>
+</div>
+</nav>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-section-gap">
+<!-- Hero Section -->
+<section class="flex flex-col lg:flex-row items-center gap-section-gap mb-section-gap">
+<div class="flex-1 flex flex-col gap-stack-lg">
+<div class="inline-flex items-center gap-2 bg-surface-container px-3 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px] text-secondary">verified</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Trusted by 500+ Healthcare Providers</span>
+</div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-primary">The Complete Journey of Care, Connected.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">From discovery to recovery, HealthFollow streamlines appointments, AI-assisted summaries, and follow-up care for patients and providers.</p>
+<div class="flex flex-col sm:flex-row gap-stack-md pt-4">
+<button class="bg-secondary text-on-secondary px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        Find a Doctor <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<button class="bg-surface-container-lowest text-primary border border-outline-variant px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-all flex items-center justify-center gap-2">
+                        For Providers
+                    </button>
+</div>
+</div>
+<div class="flex-1 w-full relative">
+<div class="absolute inset-0 bg-secondary opacity-5 rounded-2xl transform translate-x-4 translate-y-4"></div>
+<div class="bg-cover bg-center w-full aspect-[4/3] rounded-2xl smooth-shadow border border-surface-container-high relative z-10 overflow-hidden" data-alt="A professional, bright, light-mode medical setting featuring a doctor and patient in a modern clinic. The scene uses a sophisticated palette of deep blues and crisp whites. Soft, diffused lighting creates a calm, professional, and trustworthy atmosphere typical of a high-end corporate medical UI." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGF44tF5GFLFP3_WojQpjFLpmUU2r0Ki1wDtjJ25BE7JXDWD_R_Lteo4VmjG_au7yYUiWKoQoVHgJ3R2rcUWVllvA4d3AruroHBYXFsx-p4NhK-1wrLR22pYHJpQiWiBU-3jElrUrgagc6D3qgDI1xU_n8rhG7tlsCXZIR0r-KDkRfyZPXj1XSeQatPZVZSIoiXJPQG2mSFus5GsTpQnedc0ue0B9kfxJ5YBjQHwz__qHm9ME-9yfx')">
+</div>
+</div>
+</section>
+<!-- Timeline Section -->
+<section class="py-section-gap border-t border-surface-container-high">
+<div class="text-center mb-stack-lg">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">The Care Workflow</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">A seamless experience from start to finish.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-stack-md relative">
+<div class="hidden lg:block absolute top-8 left-10 right-10 h-0.5 bg-surface-container-high z-0"></div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">search</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">Search &amp; Filter</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Find the right specialist.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">Secure Booking</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Instant confirmation.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest flex items-center justify-center ai-border-glow mb-2">
+<span class="material-symbols-outlined ai-text-gradient" style="font-variation-settings: 'FILL' 1;">psychiatry</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">AI Pre-Visit</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Smart symptom summary.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">stethoscope</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">Consultation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Professional care.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest flex items-center justify-center ai-border-glow mb-2">
+<span class="material-symbols-outlined ai-text-gradient" style="font-variation-settings: 'FILL' 1;">description</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">AI Post-Visit</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Clear next steps.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-stack-sm relative z-10">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">medication</span>
+</div>
+<h3 class="font-label-md text-label-md text-primary">Reminders</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Automated follow-ups.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary dark:bg-on-tertiary-fixed w-full px-gutter py-stack-lg flex flex-col md:flex-row justify-between items-start gap-stack-md mt-section-gap">
+<div class="flex flex-col gap-2 max-w-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-on-primary">HealthFollow</span>
+<p class="font-body-sm text-body-sm text-on-primary-container dark:text-on-tertiary-fixed-variant">© 2024 HealthFollow. All rights reserved. Professional medical tools for modern care.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-x-gutter gap-y-4">
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Security Compliance</a>
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Contact Us</a>
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Patient Portal</a>
+<a class="font-label-sm text-label-sm text-on-primary-container dark:text-on-tertiary-fixed-variant hover:text-on-primary transition-colors" href="#">Doctor Dashboard</a>
+</div>
+</footer>
+</body></html>

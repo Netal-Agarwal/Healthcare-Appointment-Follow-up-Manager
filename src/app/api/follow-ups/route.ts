@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+export async function GET() { const user = await getSession(); if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 }); if (user.role === "PATIENT") return NextResponse.json({ followUps: await prisma.followUp.findMany({ where: { patientId: user.id }, include: { appointment: { include: { doctorProfile: { include: { user: true } } } } }, orderBy: { followUpDate: "asc" } }) }); if (user.role === "DOCTOR") { const doctor = await prisma.doctorProfile.findUnique({ where: { userId: user.id } }); return NextResponse.json({ followUps: doctor ? await prisma.followUp.findMany({ where: { doctorProfileId: doctor.id }, include: { appointment: { include: { patient: true } } }, orderBy: { followUpDate: "asc" } }) : [] }); } return NextResponse.json({ error: "Forbidden" }, { status: 403 }); }

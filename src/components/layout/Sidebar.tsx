@@ -1,17 +1,12 @@
 "use client";
 import React from "react";
-import { useSession } from "next-auth/react";
 
 export default function Sidebar({ className = "", children }: React.PropsWithChildren<{ className?: string }>) {
-  const { data: session } = useSession();
-
-  const role = session?.user?.role;
-
   const items = [
-    { label: "Dashboard", href: "/" },
-    ...(role === "DOCTOR" ? [{ label: "My Schedule", href: "/doctor" }] : []),
-    ...(role === "ADMIN" ? [{ label: "Manage Doctors", href: "/admin/doctors" }] : []),
-    ...(role === "PATIENT" ? [{ label: "My Appointments", href: "/appointments" }] : []),
+    { label: "Home", href: "/" },
+    { label: "Patient area", href: "/patient" },
+    { label: "Doctor area", href: "/doctor" },
+    { label: "Administration", href: "/admin" },
   ];
 
   return (

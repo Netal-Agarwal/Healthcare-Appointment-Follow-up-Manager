@@ -72,10 +72,10 @@ export async function handleLeaveDay(doctorProfileId: string, date: Date) {
         startTime: { gte: start, lt: end },
         status: { in: ["HELD", "BOOKED"] },
       },
-      include: { appointment: { include: { patient: true } } },
+      include: { appointments: { where: { status: { in: ["PENDING", "CONFIRMED"] } }, include: { patient: true } } },
     });
 
-    const appointmentIds = slots.map((s) => s.appointment?.id).filter((id): id is string => Boolean(id));
+    const appointmentIds = slots.flatMap((slot) => slot.appointments.map((appointment) => appointment.id));
 
     if (appointmentIds.length > 0) {
       await tx.appointment.updateMany({
@@ -92,7 +92,7 @@ export async function handleLeaveDay(doctorProfileId: string, date: Date) {
       });
     }
 
-    const affectedAppointments = slots.map((s) => s.appointment).filter(Boolean);
+    const affectedAppointments = slots.flatMap((slot) => slot.appointments);
     return affectedAppointments;
   });
 }

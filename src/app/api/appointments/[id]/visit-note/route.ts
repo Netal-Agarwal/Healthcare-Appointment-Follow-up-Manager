@@ -15,6 +15,8 @@ const prescriptionItem = z.object({
 const bodySchema = z.object({
   clinicalNotes: z.string().min(1),
   prescription: z.array(prescriptionItem).optional().default([]),
+  followUpDate: z.string().datetime().optional(),
+  followUpInstructions: z.string().min(1).optional(),
 });
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
@@ -30,7 +32,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "Invalid request", details: parsed.error.flatten() }, { status: 400 });
 
-    const { clinicalNotes, prescription } = parsed.data;
+    const { clinicalNotes, prescription, followUpDate, followUpInstructions } = parsed.data;
 
     // Verify appointment exists and belongs to this doctor's profile
     const doctorProfile = await prisma.doctorProfile.findUnique({ where: { userId: doctorUserId } });
@@ -64,6 +66,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
       });
 
       await tx.appointment.update({ where: { id: appointmentId }, data: { status: "COMPLETED" } });
+      if (followUpInstructions) {
+        await tx.followUp.upsert({
+          where: { appointmentId },
+          create: { appointmentId, patientId: appointment.patientId, doctorProfileId: appointment.doctorProfileId, followUpDate: followUpDate ? new Date(followUpDate) : null, instructions: followUpInstructions },
+          update: { followUpDate: followUpDate ? new Date(followUpDate) : null, instructions: followUpInstructions },
+        });
+      }
 
       // Create MedicationReminders
       const slotStart = appointment.slot?.startTime ?? new Date();

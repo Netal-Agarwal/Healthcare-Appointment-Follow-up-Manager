@@ -71,9 +71,12 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
+    if ((error as { code?: string }).code === "P2002") {
+      return NextResponse.json({ error: "User with this email already exists" }, { status: 409 });
+    }
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "We could not create your account. Please try again." },
       { status: 500 }
     );
   }

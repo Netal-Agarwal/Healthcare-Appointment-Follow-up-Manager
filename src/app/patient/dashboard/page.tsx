@@ -22,7 +22,7 @@ export default function PatientDashboardPage() {
       .then(([apptsRaw, gRaw]) => {
         if (apptsRaw?.error) {
           if (apptsRaw?.status === 401) {
-            window.location.href = '/login';
+            window.location.href = '/auth/login';
             return;
           }
           toast.error('Failed to load appointments');

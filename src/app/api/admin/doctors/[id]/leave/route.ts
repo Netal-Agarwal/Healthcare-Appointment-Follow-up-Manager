@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { handleLeaveDay } from "@/lib/slots";
 import { Prisma } from "@prisma/client";
+import { deleteCalendarEventsForAppointment } from "@/lib/calendar";
 
 const bodySchema = z.object({ date: z.string().refine((s) => !Number.isNaN(Date.parse(s)), { message: "Invalid date" }), reason: z.string().min(1) });
 
@@ -48,6 +49,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     }
 
     if (notifications.length) await prisma.notification.createMany({ data: notifications, skipDuplicates: true });
+    await Promise.all(affected.filter(Boolean).map((appointment) => deleteCalendarEventsForAppointment(appointment!.id)));
 
     // Build a safe response with limited patient info
     type AffectedAppointment = { id: string; patientId: string; patient?: { name?: string; email?: string } };

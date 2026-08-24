@@ -1,18 +1,18 @@
 "use client";
 import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
 
 export default function Home() {
-  const { data: session, status } = useSession();
-
   useEffect(() => {
-    if (status === "authenticated") {
-      const role = session?.user?.role;
+    fetch("/api/auth/me").then((r) => {
+      if (!r.ok) return null;
+      return r.json();
+    }).then((data) => {
+      const role = data?.user?.role;
       if (role === "DOCTOR") window.location.href = "/doctor";
       else if (role === "ADMIN") window.location.href = "/admin";
-      else window.location.href = "/patient";
-    }
-  }, [status, session]);
+      else if (role) window.location.href = "/patient";
+    }).catch(() => null);
+  }, []);
 
   return (
     <main className="min-h-screen flex items-center justify-center py-16 px-4">
@@ -22,7 +22,7 @@ export default function Home() {
           <p className="text-lg text-slate-600 dark:text-slate-300">Book appointments, organize visits with AI, and receive thoughtful follow-ups and medication reminders — all in one calm, secure workspace.</p>
 
           <div className="flex gap-3 mt-4">
-            <a href="/auth/register" className="inline-block">
+            <a href="/register" className="inline-block">
               <button className="rounded-md bg-teal-700 text-white px-5 py-3">Get Started</button>
             </a>
             <a href="/login" className="inline-block">

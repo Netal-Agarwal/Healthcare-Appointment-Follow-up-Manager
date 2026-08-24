@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -15,16 +14,15 @@ export default function LoginPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const res = await signIn("credentials", { redirect: false, email, password });
+    const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
     setLoading(false);
-    if (res?.error) {
-      setError("Invalid credentials. Please check your email and password.");
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data?.error ?? "Invalid credentials. Please check your email and password.");
       return;
     }
-    // success — fetch session to get role then redirect
-    const sessionRes = await fetch("/api/auth/session");
-    const session = await sessionRes.json();
-    const role = session?.user?.role;
+    const data = await res.json();
+    const role = data?.user?.role;
     if (role === "DOCTOR") router.push("/doctor");
     else if (role === "ADMIN") router.push("/admin");
     else router.push("/patient");
