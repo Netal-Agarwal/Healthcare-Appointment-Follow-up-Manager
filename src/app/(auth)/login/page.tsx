@@ -62,7 +62,7 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between">
               <Button type="submit" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</Button>
-              <a href="/auth/register" className="text-sm text-teal-700">Create account</a>
+              <a href="/register" className="text-sm text-teal-700">Create account</a>
             </div>
           </form>
         </div>

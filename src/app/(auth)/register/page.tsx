@@ -35,7 +35,7 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/auth/login");
+      router.push("/login");
     } catch {
       setError("Registration failed. Please try again.");
     } finally {
@@ -80,7 +80,7 @@ export default function RegisterPage() {
 
             <div className="flex items-center justify-between">
               <Button type="submit" disabled={loading}>{loading ? "Creating..." : "Create account"}</Button>
-              <a href="/auth/login" className="text-sm text-teal-700">Already have an account?</a>
+              <a href="/login" className="text-sm text-teal-700">Already have an account?</a>
             </div>
           </form>
         </div>

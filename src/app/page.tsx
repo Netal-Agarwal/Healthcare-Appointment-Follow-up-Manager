@@ -25,7 +25,7 @@ export default function Home() {
             <a href="/auth/register" className="inline-block">
               <button className="rounded-md bg-teal-700 text-white px-5 py-3">Get Started</button>
             </a>
-            <a href="/auth/login" className="inline-block">
+            <a href="/login" className="inline-block">
               <button className="rounded-md bg-transparent border border-slate-200 px-4 py-3">Login</button>
             </a>
           </div>
