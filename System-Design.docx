@@ -1,0 +1,147 @@
+# System Design — HealthFollow Healthcare Appointment & Follow-up Platform
+
+## 1. System Overview
+**HealthFollow** is a role-based healthcare appointment and follow-up platform connecting patients, doctors, and administrators. The system uses a Next.js application with custom authentication, Prisma ORM, and a relational database. It supports doctor availability management, appointment booking, AI-assisted pre- and post-visit summaries, notifications, medication reminders, and Google Calendar synchronization.
+
+The core design prioritizes **booking consistency, concurrency safety, graceful failure handling, and separation of responsibilities** between patients, doctors, and administrators.
+
+### High-Level Flow
+
+```
+Patient
+   │
+   ▼
+Search Doctor → View Availability → Select Slot
+   │
+   ▼
+Enter Symptoms
+   │
+   ▼
+Slot Hold / Booking Transaction
+   │
+   ├── Database validation
+   ├── Conflict check
+   └── Atomic appointment creation
+   │
+   ▼
+Appointment Confirmed
+   │
+   ├── Email notification
+   ├── Google Calendar synchronization
+   └── Reminder scheduling
+```
+
+---
+
+## 2. Double-Booking Prevention
+Double booking is treated as a **database consistency problem**, not only a frontend validation problem.
+
+When a patient attempts to book a slot, the server performs the availability check again rather than trusting the slots previously displayed to the patient.
+
+The booking flow is:
+
+1. Patient selects a doctor, date, and time slot.
+2. The server validates that the doctor is available during that period.
+3. Existing appointments for the same doctor and time are checked.
+4. The booking operation is performed within a database transaction.
+5. The appointment is created only if the slot is still available.
+6. If another simultaneous request has already consumed the slot, the transaction fails/conflict is detected and the patient receives an appropriate booking-conflict response.
+This is important because two patients can load the same available slot simultaneously. A frontend-only check could therefore allow both users to believe they successfully booked it.
+
+The database-backed transaction and conflict validation provide the final authority for appointment availability.
+
+---
+
+## 3. Slot Hold Mechanism
+A selected slot should not remain permanently reserved merely because a patient has opened the booking screen.
+
+The system uses a **temporary slot-hold concept** during the booking process. A hold represents a short-lived reservation while the patient completes the required booking information, particularly the symptom form.
+
+The lifecycle is:
+
+```
+AVAILABLE
+    │
+    ▼
+TEMPORARILY HELD
+    │
+    ├── Booking completed → CONFIRMED
+    │
+    └── Timeout / failure → AVAILABLE
+```
+The hold is validated server-side and must expire automatically. An expired hold must not prevent another patient from booking the slot.
+
+The final appointment creation still performs an authoritative availability/conflict check. Therefore, a stale client or expired hold cannot permanently occupy a slot or bypass the double-booking safeguards.
+
+---
+
+## 4. Doctor Leave Conflict Handling
+Administrators can configure doctor leave days. Leave is considered when determining future appointment availability.
+
+If a doctor is marked on leave for a date that already contains confirmed appointments, the system must identify the affected appointments rather than silently invalidating them.
+
+The flow is:
+
+```
+Admin marks doctor on leave
+          │
+          ▼
+Find affected appointments
+          │
+          ▼
+Update affected appointment state
+          │
+          ▼
+Notify affected patients
+          │
+          ▼
+Calendar synchronization
+```
+Affected patients are notified about the change so they can take appropriate action, such as rescheduling.
+
+The leave operation should remain consistent even if an external notification service is temporarily unavailable. External communication must not leave the database in an ambiguous state.
+
+---
+
+## 5. Notification Failure Handling
+Email, Google Calendar, and other external integrations are treated as **non-transactional dependencies**.
+
+The appointment database operation is therefore not dependent on successful communication with an external provider.
+
+For example:
+
+```
+Create Appointment
+       │
+       ▼
+Database Commit
+       │
+       ├── Email → Success
+       │          or Failure
+       │
+       └── Calendar → Success
+                    or Failure
+```
+If an email or Calendar request fails, the appointment itself remains valid. The failure is logged/handled separately so that a temporary external-service outage does not cause a successful booking to disappear or roll back unnecessarily.
+
+The same principle applies to cancellation, rescheduling, and doctor-leave notifications.
+
+This design provides **failure isolation**: the core healthcare workflow remains available even when an external integration is unavailable.
+
+---
+
+## 6. Security and Authorization
+Authentication is implemented using **custom server-side session authentication with HTTP-only cookies**. Role-based authorization ensures that patients, doctors, and administrators can access only the functionality appropriate to their role.
+
+Sensitive operations—including appointment creation, doctor management, leave management, and visit completion—are validated server-side rather than relying solely on client-side controls.
+
+AI functionality is restricted to **summarization and assistance**. It does not replace clinical judgment or independently diagnose patients.
+
+---
+
+## 7. Design Summary
+The system follows a **database-first consistency model** for healthcare-critical operations. Appointment availability is validated on the server, booking is protected against concurrent requests, temporary holds prevent unnecessary slot contention, doctor leave changes identify affected appointments, and external notification/calendar failures are isolated from core database transactions.
+
+This architecture ensures that the most important invariant—**one appointment slot cannot be successfully assigned to multiple patients**—is enforced at the backend/database level while maintaining graceful behavior when external services fail.
+
+(format it properly)

@@ -61,6 +61,8 @@ npm run dev
 
 Open http://localhost:3000 to view the application.
 
+Live site (production): https://healthcare-appointment-follow-up-manager-lpimw0ri0-netal1.vercel.app
+
 ## Environment Variables
 
 Use `.env.example` as the authoritative list. Key variables used by the project:
