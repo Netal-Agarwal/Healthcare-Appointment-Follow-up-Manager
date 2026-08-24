@@ -10,6 +10,7 @@ export default defineConfig({
   },
 
   datasource: {
-    url: env("DATABASE_URL"),
+    // Prefer process.env which Vercel injects during build; fall back to prisma/config's env helper.
+    url: process.env.DATABASE_URL || env("DATABASE_URL"),
   },
 });
