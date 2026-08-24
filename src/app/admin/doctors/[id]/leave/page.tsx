@@ -12,7 +12,7 @@ export default async function DoctorLeavePage({ params }: { params: { id: string
   const user = await prisma.user.findUnique({ where: { id: params.id }, include: { doctorProfile: { include: { leaveDays: true } } } });
   if (!user || !user.doctorProfile) return (<div className="p-4">Doctor not found</div>);
 
-  const leaves = user.doctorProfile.leaveDays.map((l) => l.date.toISOString().split('T')[0]);
+  const leaves = user.doctorProfile.leaveDays.map((leave: { date: Date }) => leave.date.toISOString().split('T')[0]);
 
   return (
     <div>
